@@ -7,6 +7,7 @@ for user_guess in range(1,7):
     #If the guess is correct, end the game
     if guess == word:
         print("Correct!")
+        break
     
     correct_letters = {
         letter for letter, correct in zip(word, guess) if correct == letter
