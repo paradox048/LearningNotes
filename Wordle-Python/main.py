@@ -23,6 +23,17 @@ def main():
 
 
 def show_guess(guess, word):
+    
+    """ Show the users guess on the terminal and classify all the letters
+    
+    ## Example:
+    
+    >>> show_guess("CRANE", "SNAKE"
+    correct Letters:  A, E
+    misplaced Letters:  N
+    wrong Letters:  C, R
+    
+    """
     correct_letters = {
         letter for letter, correct in zip(word, guess) if correct == letter
     }
@@ -33,7 +44,7 @@ def show_guess(guess, word):
     print("misplaced Letters: ", "".join(sorted(misplaced_letters)))
     print("wrong Letters: ", "".join(sorted(wrong_letters)))
     
-
+    
 def game_over(word):
     print("The word was: ", word)
     print("Game Over!")
@@ -57,5 +68,6 @@ def get_random_word():
     # out_path.write_text("\n".join(words), encoding="utf-8")
     return random.choice(sorted_words)
 
+# This is the standard boilerplate that calls the main() function.
 if __name__ == "__main__":
     main()
