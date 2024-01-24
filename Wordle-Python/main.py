@@ -2,18 +2,25 @@ import pathlib
 import random
 import sys
 from string import ascii_letters
+from rich.console import Console
+from rich.theme import Theme
+console = Console(width=40, theme=Theme({"warning": "red on yellow"}))
+
 g_FILENAME = "wordlist.txt"
  
 def main():
     # Pre-process
     word = get_random_word().upper()
-    print(f"word: {word}")
+    console.print(f"word: {word}")
+    guesses = ["_" * 5] * 6
+    
     # Process (main loop)
-    for guess_num in range(1, 7):
-        guess = input(f"\nGuess {guess_num}: ").upper()
-
-        show_guess(guess, word)
-        if guess == word:
+    for guess_num in range(6):
+        refresh_page(headline=f"Guess {guess_num+1}")
+        show_guesses(guesses, word)
+        
+        guesses[guess_num] = input(f"\nGuess word: ").upper()
+        if guesses[guess_num] == word:
             print("You win!")
             break
 
@@ -22,27 +29,20 @@ def main():
         game_over(word)
 
 
-def show_guess(guess, word):
-    
-    """ Show the users guess on the terminal and classify all the letters
-    
-    ## Example:
-    
-    >>> show_guess("CRANE", "SNAKE"
-    correct Letters:  A, E
-    misplaced Letters:  N
-    wrong Letters:  C, R
-    
-    """
-    correct_letters = {
-        letter for letter, correct in zip(word, guess) if correct == letter
-    }
-    misplaced_letters = set(guess) & set(word) - correct_letters
-    wrong_letters = set(guess) - set(word)
-        
-    print("correct Letters: ", "".join(sorted(correct_letters)))    
-    print("misplaced Letters: ", "".join(sorted(misplaced_letters)))
-    print("wrong Letters: ", "".join(sorted(wrong_letters)))
+def show_guesses(guesses, word):
+    for guess in guesses:
+        styled_guesses = []
+        for letter, correct in zip(guess,word):
+            if letter == correct:
+                style = "bold white on green"
+            elif letter in word:
+                style = "bold white on yellow"
+            elif letter in ascii_letters:
+                style = "white on #666666"
+            else:
+                style = "dim"
+            styled_guesses.append(f"[{style}]{letter}[/]")
+        console.print(" ".join(styled_guesses), justify="center")
     
     
 def game_over(word):
@@ -67,6 +67,11 @@ def get_random_word():
     # Write the sorted words to the output file
     # out_path.write_text("\n".join(words), encoding="utf-8")
     return random.choice(sorted_words)
+
+
+def refresh_page(headline):
+    console.clear()
+    console.rule(f"[bold blue]:leafy_green: {headline} :leafy_green:[/]\n")
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == "__main__":
