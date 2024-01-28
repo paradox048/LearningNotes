@@ -1,11 +1,26 @@
-master_pwd = input("What is the master password? ")
+from cryptography.fernet import Fernet
 
+
+def load_key():
+    file = open("key.key", "rb")
+    key = file.read()
+    file.close()
+    return key
+
+key = load_key()
+fer = Fernet(key)
+
+def write_key():
+    key = Fernet.generate_key()
+    with open("key.key", "wb") as key_file:
+        key_file.write(key)
+        
 def view():
     with open("passwords.txt", "r") as f:
         for line in f.readlines():
             data = line.strip()
             usr, pwrd = data.split("|")
-            print(f"User: {usr}\nPassword: {pwrd}")
+            print(f"User: {usr}" +"|" +"Password: {pwrd}")
 
 def add():
     name = input("Account Name: ")
@@ -13,7 +28,7 @@ def add():
     
     #append mode
     with open("passwords.txt", "a") as f:
-        f.write(name + " | " + password + "\n")
+        f.write(name + " | " + str(fer.encrypt(password.encode())) + "\n")
         
 
 
