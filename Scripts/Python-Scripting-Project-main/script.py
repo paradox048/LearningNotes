@@ -6,6 +6,15 @@ import sys
 
 GAME_DIR_PATTERN = "game"
 
+def make_json_metadata_file(path, game_dirs):
+    data = {
+        "games": game_dirs,
+        "num_games": len(game_dirs)
+    }
+    
+    with open(path, "w") as f:
+        json.dump(data, f)
+
 def find_all_game_paths(source):
     game_paths = []
 
@@ -27,8 +36,6 @@ def get_name_from_path(paths, to_strip):
     
     return new_names
     
-
-
 # What does this function do?
 # it copies the source directory to the destination directory
 def copy_and_overwrite(source, dest):
@@ -55,7 +62,11 @@ def main(source, target):
     
     create_dir(target_path)
     
-    
+    for src, dest in zip(game_paths, new_game_dirs):
+        dest_path = os.path.join(target_path, dest)
+        copy_and_overwrite(src, dest_path)
+
+    make_json_metadata_file(os.path.join(target_path, "metadata.json"), new_game_dirs)
 
 if __name__ == "__main__":
     args = sys.argv
