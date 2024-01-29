@@ -9,7 +9,6 @@ GAME_CODE_EXTENSION = ".go"
 GAME_COMPILE_COMMAND = ["go", "build"]
 
     
-    
 def make_json_metadata_file(path, game_dirs):
     data = {
         "games": game_dirs,
