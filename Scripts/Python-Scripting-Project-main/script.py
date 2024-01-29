@@ -5,7 +5,11 @@ from subprocess import PIPE, run
 import sys
 
 GAME_DIR_PATTERN = "game"
+GAME_CODE_EXTENSION = ".go"
+GAME_COMPILE_COMMAND = ["go", "build"]
 
+    
+    
 def make_json_metadata_file(path, game_dirs):
     data = {
         "games": game_dirs,
@@ -49,7 +53,30 @@ def copy_and_overwrite(source, dest):
 def create_dir(path):
     if not os.path.exists(path):
         os.mkdir(path)
+        
+def compile_game_code(path):
+    code_file_name = None
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.endswith(GAME_CODE_EXTENSION):
+                code_file_name = file
+                break
+        break
 
+    if code_file_name is None:
+        return 
+
+    command = GAME_COMPILE_COMMAND + [code_file_name]
+    run_command(command, path)
+    
+def run_command(command, path):
+    cwd = os.getcwd()
+    os.chdir(path)
+    
+    result = run(command, stdout=PIPE, stdin=PIPE, universal_newlines=True)
+    print("compile result: ", result)
+    os.chdir(cwd)
+    
 def main(source, target):
     #cwd means current working directory
     cwd = os.getcwd()
@@ -58,19 +85,19 @@ def main(source, target):
     
     game_paths = find_all_game_paths(source_path)
     new_game_dirs = get_name_from_path(game_paths, "_game")
-    # print(new_game_dirs)
     
     create_dir(target_path)
     
     for src, dest in zip(game_paths, new_game_dirs):
         dest_path = os.path.join(target_path, dest)
         copy_and_overwrite(src, dest_path)
+        compile_game_code(dest_path)
 
     make_json_metadata_file(os.path.join(target_path, "metadata.json"), new_game_dirs)
 
 if __name__ == "__main__":
     args = sys.argv
-    if len(args) > 3:
+    if len(args) != 3:
         raise Exception("You must pass a souce and target directory - only")
     
     source, target = args[1:]
